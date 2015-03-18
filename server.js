@@ -1,9 +1,10 @@
 'use strict';
 var express = require('express');
-
+var Datastore = require('nedb');
 
 // setup server
 var app = express();
+var db = new Datastore({filename: 'links.db', autoload: true});
 
 
 // health check
@@ -16,11 +17,37 @@ app.get(['/healthcheck'], function(req, res) {
   res.jsonp(healthcheck);
 });
 
+
+function createRecord(isbn) {
+  var book = {
+        isbn: 12345,
+        links: {
+          chareads: '',
+          amazon: '',
+          bookdepository: ''
+        }
+      };
+}
+
+
+
+
+
 function social(req, res, next) {
   var url = req.url.split('/').slice(1);
   var isbn = url[0];
   var website = url[1];
-  console.dir(url);
+
+  db.find({isbn: isbn}, function (err, docs) {
+    if (docs) {
+      console.log(docs);
+    } else {
+      // create record
+    }
+  });
+
+  res.send('yay');
+
 }
 
 // deal w/ the routing

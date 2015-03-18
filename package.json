@@ -1,5 +1,5 @@
 {
-  "name": "chareads-shrot",
+  "name": "chareads-short",
   "version": "1.0.1",
   "engines": {
     "node": "0.10.x"
@@ -11,6 +11,7 @@
   "author": "Charlotte Dann",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.9.7"
+    "express": "^4.9.7",
+    "nedb": "^1.1.1"
   }
 }
