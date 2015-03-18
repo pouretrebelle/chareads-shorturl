@@ -1,0 +1,16 @@
+{
+  "name": "chareads-shrot",
+  "version": "1.0.1",
+  "engines": {
+    "node": "0.10.x"
+  },
+  "description": "",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "Charlotte Dann",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.9.7"
+  }
+}
