@@ -9,7 +9,6 @@ function changeTo(isbn, len) {
 	var prefix, ck, main;
 	if (isbn.length == len) return isbn;
 	main = isbn.length == 13 ? isbn.slice(3,12) : isbn.slice(0,8);
-	console.log('main: '+main);
 	prefix = isbn.length == 13 ? isbn.slice(0,2) : '978';
 	if (len == 13) {
 		return prefix+main+checkDigit(prefix+main);

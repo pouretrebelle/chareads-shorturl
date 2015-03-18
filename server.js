@@ -3,9 +3,10 @@ var express = require('express');
 var Datastore = require('nedb');
 var ISBN = require('./isbn');
 
-// setup server
+// setup server and database
 var app = express();
 var db = new Datastore({filename: 'links.db', autoload: true});
+db.ensureIndex({fieldName: 'isbn', unique: true});
 
 
 // health check
@@ -40,10 +41,10 @@ function createRecord(isbn, website) {
 					bookdepository: getLink(isbn, 'bookdepository')
 				}
 			};
-	return book.links[website];
 	db.insert(book, function(err) {
-		console.log(err);
+		if (err) console.log(err);
 	});
+	return book.links[website];
 }
 
 
@@ -62,7 +63,7 @@ function social(req, res, next) {
 
 	db.find({isbn: isbn}, function (err, docs) {
 		if (docs.length > 0) {
-			var newurl = docs[0][links][website];
+			var newurl = docs[0].links[website];
 		} else {
 			var newurl = createRecord(isbn, website);
 		}
