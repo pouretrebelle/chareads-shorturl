@@ -1,7 +1,7 @@
 'use strict';
 var express = require('express');
 var Datastore = require('nedb');
-var ISBN = require('isbn').ISBN;
+var ISBN = require('./isbn');
 
 // setup server
 var app = express();
@@ -22,13 +22,13 @@ app.get(['/healthcheck'], function(req, res) {
 function getLink(isbn, website) {
 	switch(website) {
 		case 'amazon':
-			return 'http://www.amazon.co.uk/dp/'+ISBN.parse(isbn).asIsbn10()+'?tag=thcdex-21';
+			return 'http://www.amazon.co.uk/dp/'+ISBN.get10(isbn)+'?tag=thcdex-21';
 			break;
 		case 'bookdepository':
 			return 'http://bookdepository.com/search?searchTerm='+isbn+'&a_id=char';
 			break;
 		default:
-			return 'http://char.reviews/book/'+isbn;
+			return 'http://char.reviews/book/'+ISBN.get13(isbn);
 	}
 }
 function createRecord(isbn, website) {
@@ -67,6 +67,7 @@ function social(req, res, next) {
 			var newurl = createRecord(isbn, website);
 		}
 		res.redirect(301, newurl);
+		//res.send(newurl);
 	});
 
 }

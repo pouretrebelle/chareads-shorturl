@@ -12,7 +12,6 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.9.7",
-    "isbn": "^0.2.0",
     "nedb": "^1.1.1"
   }
 }
