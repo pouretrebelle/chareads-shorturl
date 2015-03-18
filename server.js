@@ -1,6 +1,7 @@
 'use strict';
 var express = require('express');
 var Datastore = require('nedb');
+var ISBN = require('isbn').ISBN;
 
 // setup server
 var app = express();
@@ -9,53 +10,75 @@ var db = new Datastore({filename: 'links.db', autoload: true});
 
 // health check
 var healthcheck = {
-  version: require('./package').version,
-  http: 'okay'
+	version: require('./package').version,
+	http: 'okay'
 };
 // healthcheck info public
 app.get(['/healthcheck'], function(req, res) {
-  res.jsonp(healthcheck);
+	res.jsonp(healthcheck);
 });
 
 
-function createRecord(isbn) {
-  var book = {
-        isbn: 12345,
-        links: {
-          chareads: '',
-          amazon: '',
-          bookdepository: ''
-        }
-      };
+function getLink(isbn, website) {
+	switch(website) {
+		case 'amazon':
+			return 'http://www.amazon.co.uk/dp/'+ISBN.parse(isbn).asIsbn10()+'?tag=thcdex-21';
+			break;
+		case 'bookdepository':
+			return 'http://bookdepository.com/search?searchTerm='+isbn+'&a_id=char';
+			break;
+		default:
+			return 'http://char.reviews/book/'+isbn;
+	}
+}
+function createRecord(isbn, website) {
+	var book = {
+				isbn: isbn,
+				links: {
+					chareads: getLink(isbn, 'chareads'),
+					amazon: getLink(isbn, 'amazon'),
+					bookdepository: getLink(isbn, 'bookdepository')
+				}
+			};
+	return book.links[website];
+	db.insert(book, function(err) {
+		console.log(err);
+	});
 }
 
 
-
-
-
 function social(req, res, next) {
-  var url = req.url.split('/').slice(1);
-  var isbn = url[0];
-  var website = url[1];
+	var url, isbn, website;
+	url = req.url.split('/').filter(function(n){return n != ''});
+	isbn = url[0];
+	if (url.length == 1) {
+		website = 'chareads';
+	} else {
+		website = url[1];
+	}
+	if (website == 'amzn') website = 'amazon';
+	if (website == 'bd') website = 'bookdepository';
 
-  db.find({isbn: isbn}, function (err, docs) {
-    if (docs) {
-      console.log(docs);
-    } else {
-      // create record
-    }
-  });
 
-  res.send('yay');
+	db.find({isbn: isbn}, function (err, docs) {
+		if (docs.length > 0) {
+			var newurl = docs[0][links][website];
+		} else {
+			var newurl = createRecord(isbn, website);
+		}
+		res.redirect(301, newurl);
+	});
 
 }
 
 // deal w/ the routing
-app.route(/\/([0-9]+)\/(\w+)\/?$/).get(social);
+app.get(/\/([0-9]+)\/(\w+)\/?$/, social);
+// for websiteless routing
+app.get(/\/([0-9]+)\/?$/, social);
 
 
 var server = app.listen(process.env.PORT || 4000, function () {
-  var host = server.address().address;
-  var port = server.address().port;
-  console.log('Example app listening at http://%s:%s', host, port);
+	var host = server.address().address;
+	var port = server.address().port;
+	console.log('Example app listening at http://%s:%s', host, port);
 });
