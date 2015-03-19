@@ -70,6 +70,7 @@ function social(req, res, next) {
 			to: 10
 		}, function (err, a) {
 			if (err) throw err;
+			// sometimes ISBNs have leading zeros, we need to add them back in
 			if (a.length == 9) a = '0'+a
 			if (a.length == 12) a = '0'+a
 			isbn = a;
@@ -92,8 +93,8 @@ function social(req, res, next) {
 		} else {
 			var newurl = createRecord(isbn, website);
 		}
-		//res.redirect(301, newurl);
-		res.send(newurl);
+		res.redirect(301, newurl);
+		//res.send(newurl);
 	});
 
 }
