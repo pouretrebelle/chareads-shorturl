@@ -4,7 +4,11 @@
   "engines": {
     "node": "0.10.x"
   },
-  "description": "",
+  "description": "Book Affiliate URL Shortener for chareads.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pouretrebelle/chareads-shorturl.git"
+  },
   "scripts": {
     "start": "node server.js"
   },
