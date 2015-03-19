@@ -108,10 +108,16 @@ function social(req, res, next) {
 
 }
 
+
+function redirect(req, res, next) {
+	res.redirect(307, 'http://char.reviews/');
+}
+
 // deal w/ the routing
 app.get(/\/([0-z]+)\/(\w+)\/?$/, social);
 // for websiteless routing
 app.get(/\/([0-z]+)\/?$/, social);
+app.get('/', redirect);
 
 
 var server = app.listen(process.env.PORT || 4000, function () {
