@@ -11,6 +11,7 @@
   "author": "Charlotte Dann",
   "license": "ISC",
   "dependencies": {
+    "baseit": "^0.2.0",
     "express": "^4.9.7",
     "nedb": "^1.1.1"
   }

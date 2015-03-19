@@ -6,9 +6,9 @@ function get13(isbn) {
 	return changeTo(isbn, 13);
 }
 function changeTo(isbn, len) {
-	var prefix, ck, main;
+	var prefix, main;
 	if (isbn.length == len) return isbn;
-	main = isbn.length == 13 ? isbn.slice(3,12) : isbn.slice(0,8);
+	main = isbn.length == 13 ? isbn.slice(3,12) : isbn.slice(0,9);
 	prefix = isbn.length == 13 ? isbn.slice(0,2) : '978';
 	if (len == 13) {
 		return prefix+main+checkDigit(prefix+main);

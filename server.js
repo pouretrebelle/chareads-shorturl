@@ -2,6 +2,7 @@
 var http = require('http');
 var express = require('express');
 var Datastore = require('nedb');
+var baseit = require('baseit');
 var ISBN = require('./isbn');
 
 // setup server and database
@@ -21,45 +22,29 @@ app.get(['/healthcheck'], function(req, res) {
 });
 
 
-function getLink(isbn, website) {
+function getLink(str, website) {
 	switch(website) {
 		case 'goodreads':
-			// var bookid = '';
-			// http.get('http://www.goodreads.com/book/review_counts.json?isbns='+isbn+'&key=zeJJHAQRO2vfoRdD6lztwg', function(res) {
-			// 	var body = '';
-			// 	res.on('data', function(chunk) {
-			// 		body += chunk;
-			// 	});
-			// 	res.on('end', function() {
-			// 		try {
-			// 			var data = JSON.parse(body)
-			// 			if (data) {
-			// 				bookid = data.books[0].id;
-			// 			}
-			// 		} catch(err) {}
-			// 		return 'https://www.goodreads.com/book/show/'+bookid;
-			// 	});
-			// }).on('error', function(err) {
-			// 	console.log(err);
-			// 	return 'https://www.goodreads.com/search?&query='+isbn;
-			// });
-			return 'https://www.goodreads.com/search?query='+isbn;
+			return 'https://www.goodreads.com/search?query='+str;
 			break;
 		case 'amazon':
-			return 'http://www.amazon.co.uk/dp/'+ISBN.get10(isbn)+'?tag=thcdex-21';
+			return 'http://www.amazon.co.uk/dp/'+ISBN.get10(str)+'?tag=thcdex-21';
 			break;
 		case 'bookdepository':
-			return 'http://bookdepository.com/search?searchTerm='+isbn+'&a_id=char';
+			return 'http://bookdepository.com/search?searchTerm='+str+'&a_id=char';
 			break;
 		default:
-			return 'http://char.reviews/book/'+ISBN.get13(isbn);
+			return 'http://char.reviews/book/'+str;
 	}
 }
 function createRecord(isbn, website) {
+	var slug = isbn;
+	baseit({input: ISBN.get13(isbn), from: 10, to: 36, digits: 9}, function (e, a) {slug = a;});
 	var book = {
 				isbn: isbn,
+				slug: slug,
 				links: {
-					chareads: getLink(isbn, 'chareads'),
+					chareads: getLink(slug, 'chareads'),
 					goodreads: getLink(isbn, 'goodreads'),
 					amazon: getLink(isbn, 'amazon'),
 					bookdepository: getLink(isbn, 'bookdepository')
@@ -76,6 +61,21 @@ function social(req, res, next) {
 	var url, isbn, website;
 	url = req.url.split('/').filter(function(n){return n != ''});
 	isbn = url[0];
+
+	// for decoding Base36 slugs
+	if (isbn.length !== 10 && isbn.length !== 13) {
+		baseit({
+			input: isbn,
+			from: 36,
+			to: 10
+		}, function (err, a) {
+			if (err) throw err;
+			if (a.length == 9) a = '0'+a
+			if (a.length == 12) a = '0'+a
+			isbn = a;
+		});
+	}
+
 	if (url.length == 1) {
 		website = 'chareads';
 	} else {
@@ -92,16 +92,16 @@ function social(req, res, next) {
 		} else {
 			var newurl = createRecord(isbn, website);
 		}
-		res.redirect(301, newurl);
-		//res.send(newurl);
+		//res.redirect(301, newurl);
+		res.send(newurl);
 	});
 
 }
 
 // deal w/ the routing
-app.get(/\/([0-9]+)\/(\w+)\/?$/, social);
+app.get(/\/([0-z]+)\/(\w+)\/?$/, social);
 // for websiteless routing
-app.get(/\/([0-9]+)\/?$/, social);
+app.get(/\/([0-z]+)\/?$/, social);
 
 
 var server = app.listen(process.env.PORT || 4000, function () {
