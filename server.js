@@ -1,4 +1,5 @@
 'use strict';
+var http = require('http');
 var express = require('express');
 var Datastore = require('nedb');
 var ISBN = require('./isbn');
@@ -22,6 +23,28 @@ app.get(['/healthcheck'], function(req, res) {
 
 function getLink(isbn, website) {
 	switch(website) {
+		case 'goodreads':
+			// var bookid = '';
+			// http.get('http://www.goodreads.com/book/review_counts.json?isbns='+isbn+'&key=zeJJHAQRO2vfoRdD6lztwg', function(res) {
+			// 	var body = '';
+			// 	res.on('data', function(chunk) {
+			// 		body += chunk;
+			// 	});
+			// 	res.on('end', function() {
+			// 		try {
+			// 			var data = JSON.parse(body)
+			// 			if (data) {
+			// 				bookid = data.books[0].id;
+			// 			}
+			// 		} catch(err) {}
+			// 		return 'https://www.goodreads.com/book/show/'+bookid;
+			// 	});
+			// }).on('error', function(err) {
+			// 	console.log(err);
+			// 	return 'https://www.goodreads.com/search?&query='+isbn;
+			// });
+			return 'https://www.goodreads.com/search?query='+isbn;
+			break;
 		case 'amazon':
 			return 'http://www.amazon.co.uk/dp/'+ISBN.get10(isbn)+'?tag=thcdex-21';
 			break;
@@ -37,6 +60,7 @@ function createRecord(isbn, website) {
 				isbn: isbn,
 				links: {
 					chareads: getLink(isbn, 'chareads'),
+					goodreads: getLink(isbn, 'goodreads'),
 					amazon: getLink(isbn, 'amazon'),
 					bookdepository: getLink(isbn, 'bookdepository')
 				}
@@ -57,6 +81,7 @@ function social(req, res, next) {
 	} else {
 		website = url[1];
 	}
+	if (website == 'gr') website = 'goodreads';
 	if (website == 'amzn') website = 'amazon';
 	if (website == 'bd') website = 'bookdepository';
 
