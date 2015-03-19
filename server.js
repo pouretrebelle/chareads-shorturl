@@ -2,6 +2,7 @@
 var http = require('http');
 var express = require('express');
 var Datastore = require('nedb');
+var Keen = require('keen.io');
 var baseit = require('baseit');
 var ISBN = require('./isbn');
 
@@ -10,6 +11,11 @@ var app = express();
 var db = new Datastore({filename: 'links.db', autoload: true});
 db.ensureIndex({fieldName: 'isbn', unique: true});
 
+// setup keen.io logging
+var client = Keen.configure({
+	projectId: '550adb5c96773d150f3bb7ff',
+	writeKey: '3bc0ba1da6a929bf450a568c679251726452c3b84c487285a6f8c2a4dc1ea7a4132c93241851de06dcabc9c309531d597e3eaa97fba01f7caf81ce9038db0e52415651197bb41c2ed16a262989cb8c962b15813f84362183f86f8e84b78803308b8334a1239763237b3c17534d6e65f2',
+});
 
 // health check
 var healthcheck = {
@@ -94,7 +100,10 @@ function social(req, res, next) {
 			var newurl = createRecord(isbn, website);
 		}
 		res.redirect(301, newurl);
-		//res.send(newurl);
+		// res.send(newurl);
+
+		// send event to keen.io
+		client.addEvent('redirect', {'isbn': isbn, 'website': website});
 	});
 
 }
