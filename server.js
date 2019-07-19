@@ -110,7 +110,7 @@ function social(req, res, next) {
 
 
 function redirect(req, res, next) {
-	res.redirect(307, 'http://char.reviews/');
+	res.redirect(307, 'https://charlottedann.com');
 }
 
 // deal w/ the routing
