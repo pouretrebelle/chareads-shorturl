@@ -34,7 +34,7 @@ function getLink(str, website) {
 			return 'https://www.goodreads.com/search?query='+str;
 			break;
 		case 'amazon':
-			return 'http://www.amazon.co.uk/dp/'+ISBN.get10(str)+'?tag=thcdex-21';
+			return 'http://www.amazon.com/dp/'+ISBN.get10(str)+'?tag=chareads-20';
 			break;
 		case 'bookdepository':
 			return 'http://bookdepository.com/search?searchTerm='+str+'&a_id=char';
